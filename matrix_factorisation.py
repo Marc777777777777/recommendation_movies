@@ -15,11 +15,11 @@ class matrix_factorisation:
         self.I = np.random.choice(ratings, (m, self.k))
         self.U = np.random.choice(ratings, (n, self.k))
     
-    def train_GD(self, R, tau1, tau2, lamba=0.5, mu=0.5, nb_ite=200):
+    def train_GD(self, R, tau1, tau2, lamba=0.5, mu=0.5, nb_ite=100):
         """
         This function will train the model with parameter k using gradient descent (slide 22).
         """
-
+        #cost_function = np.trace(R.T@R) - 2*np.trace(R.T@self.I@self.U.T) + np.trace(self.U@self.I.T@self.I@self.U.T) + lamba*np.trace(self.U.T@self.U) + mu*np.trace(self.I.T@self.I)
         for _ in range(nb_ite):
             C_deriv_U = -2*R.T@self.I + 2*self.U@self.I.T@self.I + 2*mu*self.U
             C_deriv_I = -2*R@self.U + 2*self.I@self.U.T@self.U + 2*lamba*self.I

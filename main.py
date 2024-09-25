@@ -17,7 +17,7 @@ data_genre = np.load("namesngenre.npy")     # shape = (4980, 2)
 # PREPROCESSING OF THE TRAINING DATA
 data_train = np.nan_to_num(data_train)
 m,n = data_train.shape
-method = MF.matrix_factorisation(k=200, m=m, n=n)
+method = MF.matrix_factorisation(k=300, m=m, n=n)
 
 # TRAINING START
 print("Start training")
