@@ -17,12 +17,13 @@ data_genre = np.load("namesngenre.npy")     # shape = (4980, 2)
 # PREPROCESSING OF THE TRAINING DATA
 data_train = np.nan_to_num(data_train)
 m,n = data_train.shape
-method = MF.matrix_factorisation(k=300, m=m, n=n)
+method = MF.matrix_factorisation(k=500, m=m, n=n)
 
 # TRAINING START
 print("Start training")
 start_time = time.time()
-method.train_GD(data_train, 0.015, 0.015)
+method.train_GD(data_train, 0.015, 0.015, lamba=0, mu=0,nb_ite=50)
+#method.train_ALS(data_train, lmbd=0.2, mu=0.2)
 end_time = time.time()
 print("Training time =", end_time-start_time, "s")
 #average = np.nanmean(data_test)
@@ -33,6 +34,7 @@ T = np.argwhere(R_isnan == False)    # T contains a list of list containing the 
 data_test = np.nan_to_num(data_test)
 
 prediction = method.predict(data_test)
+print(prediction)
 print("Score RMSE =", metric.RMSE(data_test, prediction, T))
 
 #TODO:
