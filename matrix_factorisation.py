@@ -60,12 +60,12 @@ class matrix_factorisation:
         This function will train the model with parameter k using ALS (slide 22).
         """
         cost_function = cost(R, self.I, self.U, lmbda=lmbda, mu=mu)
-        cost_val = [cost_function]
+        #cost_val = [cost_function]
         counter = 0
 
         for ite in range(nb_ite):
             #(self.I, self.U) = (R@ self.U @np.linalg.inv(self.U.T@self.U + lmbda *np.eye(self.k)), R.T@self.I@np.linalg.inv(self.I.T@self.I+ mu*np.eye(self.k)))
-            print("Iteration:", ite)
+            #print("Iteration:", ite)
             if counter < alternate_counter:
                 self.U = R.T@self.I@np.linalg.inv(self.I.T@self.I+ mu*np.eye(self.k))
                 counter += 1
@@ -77,7 +77,7 @@ class matrix_factorisation:
                 if counter >= 2*alternate_counter:
                     counter = 0
 
-            cost_val.append(cost(R, self.I, self.U, lmbda=lmbda, mu=mu))
+            #cost_val.append(cost(R, self.I, self.U, lmbda=lmbda, mu=mu))
 
         #plt.plot(np.arange(0, nb_ite+1, 1), cost_val)
         #plt.semilogy(np.arange(0, nb_ite+1, 1), cost_val)
