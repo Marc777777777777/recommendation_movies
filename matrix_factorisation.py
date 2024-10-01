@@ -19,7 +19,7 @@ class matrix_factorisation:
         self.U = np.ones((n, self.k))
 
 
-    def train_GD(self, R, tau1, tau2, lmbda=0.001, mu=0.001, nb_ite=500, alternate_counter=25):
+    def train_GD(self, R, tau_U=0.1, tau_I=1e-10, lmbda=0.001, mu=0.001, nb_ite=500, alternate_counter=25):
         """
         This function will train the model with parameter k using gradient descent (slide 22).
         """
@@ -31,13 +31,13 @@ class matrix_factorisation:
 
             if counter < alternate_counter:
                 C_deriv_U = -2*R.T@self.I + 2*self.U@self.I.T@self.I + 2*mu*self.U
-                self.U = self.U - tau2*C_deriv_U
+                self.U = self.U - tau_U*C_deriv_U
                 counter += 1
                 
                 
             else:
                 C_deriv_I = -2*R@self.U + 2*self.I@self.U.T@self.U + 2*lmbda*self.I
-                self.I = self.I - tau1*C_deriv_I
+                self.I = self.I - tau_I*C_deriv_I
                 counter += 1
 
                 if counter >= 2*alternate_counter:

@@ -26,7 +26,7 @@ if __name__ == '__main__':
     table = np.nan_to_num(table, nan=np.nanmean(table, axis=1, keepdims=True))
     m,n = table.shape
 
-    method = MF.matrix_factorisation(k=1, m=m, n=n)
+    method = MF.matrix_factorisation(k=4, m=m, n=n)
     method.train_ALS(table, lmbda=1, mu=1)
 
     table = method.predict()
