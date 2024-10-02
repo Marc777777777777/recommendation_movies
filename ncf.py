@@ -1,7 +1,5 @@
 import torch
 
-import torch
-
 class NeuMF(torch.nn.Module):
     def __init__(self, config):
         super(NeuMF, self).__init__()
@@ -53,14 +51,13 @@ class NeuMF(torch.nn.Module):
         logits = self.logits(vector)
         output = self.sigmoid(logits).squeeze()
 
-        return output
+        return 4.5*output + 0.5
 
     def train_model(self, train_loader, loss_function, optimizer, num_epochs):
         for epoch in range(num_epochs):
             self.train()  # Set the model to training mode
 
             total_loss = 0.0  # Variable to accumulate loss
-
             # Iterate through each batch of training data
             for user_indices, item_indices, labels in train_loader:
                 optimizer.zero_grad()  # Clear previous gradients
