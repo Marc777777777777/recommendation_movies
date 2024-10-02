@@ -1,9 +1,10 @@
-
 import numpy as np
 import os
 from tqdm import tqdm, trange
 import argparse
 import matrix_factorisation as MF
+import Deep_Matrix_Factorization as DMF
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate a completed ratings table.')
@@ -21,7 +22,7 @@ if __name__ == '__main__':
     
 
     # Any method you want
-    
+    '''
     ### MATRIX FACTORISATION ###
     #average = np.nanmean(table)
     #table = np.nan_to_num(table, nan=average)
@@ -32,8 +33,14 @@ if __name__ == '__main__':
     method = MF.matrix_factorisation(k=90, m=m, n=n)
     method.train_ALS(table, lmbda=0.1, mu=0.1)
     table = method.predict()
-
+    '''
     ### DEEP MATRIX FACTORISATION ###
+    table = np.nan_to_num(table)
+    mf_model = DMF.matrix_factorisation()
+    model = mf_model.train_DMF(table, latent_dim=64, epochs=10, learning_rate=0.001, layers=2)
+    user_vectors, item_vectors = mf_model.prepare_data_for_training(table)
+    table = mf_model.predict(model, user_vectors, item_vectors, batch_size=100)
+
     
 
 
@@ -41,6 +48,3 @@ if __name__ == '__main__':
 
     # Save the completed table 
     np.save("output.npy", table) ## DO NOT CHANGE THIS LINE
-
-
-        
