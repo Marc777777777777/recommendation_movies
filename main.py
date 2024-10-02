@@ -52,7 +52,9 @@ for k in k_values:
     print("Score RMSE =", RMSE_values[-1])
     print("Score accuracy =", accuracy_values[-1])
 
-
+# print(np.max(prediction))
+# print(np.min(prediction))
+# print(np.mean(prediction))
 # PLOTTING THE PERFORMANCE
 plt.plot(k_values, RMSE_values)
 plt.title("RMSE score depending on k")

@@ -19,7 +19,7 @@ def accuracy(R, R_hat, T):
         if R[T[i][0], T[i][1]] == R_hat[T[i][0], T[i][1]]:
             accu += 1 # If the rating in R and R_hat are different, then we add 1
         
-    return accu   # if difference is small (near 0), then the ratings are the same for a lot of elements
+    return (accu/len(T))*100   # if difference is small (near 0), then the ratings are the same for a lot of elements
 
 def loss0_1(R, R_hat, T):
     """
