@@ -37,15 +37,15 @@ if __name__ == '__main__':
     table = method.predict()
     '''
     ### DEEP MATRIX FACTORISATION ###
+    """
     table = np.nan_to_num(table)
     mf_model = DMF.matrix_factorisation()
     model = mf_model.train_DMF(table, latent_dim=64, epochs=10, learning_rate=0.001, layers=2)
     user_vectors, item_vectors = mf_model.prepare_data_for_training(table)
     table = mf_model.predict(model, user_vectors, item_vectors, batch_size=100)
-
+    """
 
     ###NCF
-    """
     def rmse_loss(outputs, labels):
         mse_loss = torch.nn.functional.mse_loss(outputs, labels)
         return torch.sqrt(mse_loss)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     for i, pred in zip(nan_indices, prediction):
         table[i[0], i[1]] = pred.item()
-    """
+
 
     # Save the completed table
     np.save("output.npy", table) ## DO NOT CHANGE THIS LINE
