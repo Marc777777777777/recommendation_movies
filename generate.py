@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
 
     # Any method you want
-    '''
+    
     ### MATRIX FACTORISATION ###
     #average = np.nanmean(table)
     #table = np.nan_to_num(table, nan=average)
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     method = MF.matrix_factorisation(k=90, m=m, n=n)
     method.train_ALS(table, lmbda=0.1, mu=0.1)
     table = method.predict()
-    '''
+    
     ### DEEP MATRIX FACTORISATION ###
     """
     table = np.nan_to_num(table)
@@ -47,6 +47,7 @@ if __name__ == '__main__':
     """
 
     ###NCF
+    """
     def rmse_loss(outputs, labels):
         mse_loss = torch.nn.functional.mse_loss(outputs, labels)
         return torch.sqrt(mse_loss)
@@ -80,7 +81,7 @@ if __name__ == '__main__':
 
     for i, pred in zip(nan_indices, prediction):
         table[i[0], i[1]] = pred.item()
-
+    """
 
     # Save the completed table
     np.save("output.npy", table) ## DO NOT CHANGE THIS LINE
