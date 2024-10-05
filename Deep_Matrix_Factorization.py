@@ -5,27 +5,13 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Embedding, Flatten, Dense, Multiply, ReLU
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import Dot
-
-
-
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
 class matrix_factorisation:
     """
     An object of this class will implement the training and 
     """
 
-    
-    def train_GD(self, R):
-        """
-        This function will train the model with parameter k using gradient descent (slide 22).
-        """
-        # TODO
-    
-    def train_ALS(self, R):
-        """
-        This function will train the model with parameter k using ALS (slide 22).
-        """
-        # TODO: ????
         
     def prepare_data_for_training(self, Y):
         num_users, num_items = Y.shape
@@ -41,7 +27,7 @@ class matrix_factorisation:
         
         return user_vectors, item_vectors
     
-    def train_DMF(self, R, latent_dim, epochs, learning_rate, layers):
+    def train_DMF(self, R, latent_dim, epochs, learning_rate, num_layers):
         '''
         Fonction unique pour Deep Matrix Factorization, prenant en compte une matrice R avec des NaN pour les notes manquantes.
         
@@ -76,13 +62,14 @@ class matrix_factorisation:
             user_input = Input(shape=(num_items,), name='user_input')  # Prendre tout le vecteur Y_{i*} (toutes les notes d'un utilisateur)
             item_input = Input(shape=(num_users,), name='item_input')  # Prendre tout le vecteur Y_{*j} (toutes les notes d'un film)
  
-            # Projection multi-couche non linéaire pour l'utilisateur
+            # Ajouter des couches dynamiques
             user_projection = Dense(latent_dim, activation='relu')(user_input)
-            user_projection = Dense(latent_dim, activation='relu')(user_projection)
-            
-            # Projection multi-couche non linéaire pour l'item
             item_projection = Dense(latent_dim, activation='relu')(item_input)
-            item_projection = Dense(latent_dim, activation='relu')(item_projection)
+            
+            # Ajouter plusieurs couches dynamiques en fonction du nombre spécifié
+            for _ in range(num_layers - 1):  # num_layers - 1 car on a déjà une couche
+                user_projection = Dense(latent_dim, activation='relu')(user_projection)
+                item_projection = Dense(latent_dim, activation='relu')(item_projection)
             
             # Combiner les deux projections avec une similarité cosinus
             similarity = Dot(axes=1, normalize=True)([user_projection, item_projection])*5
@@ -122,8 +109,54 @@ class matrix_factorisation:
         train_dmf_model(model, Y_train, epochs, learning_rate)
         
         return model
+    def create_dynamic_dmf_model(self, num_users, num_items, latent_dim, num_layers):
+        user_input = Input(shape=(num_items,), name='user_input')
+        item_input = Input(shape=(num_users,), name='item_input')
+    
+        # Ajouter des couches dynamiques
+        user_projection = Dense(latent_dim, activation='relu')(user_input)
+        item_projection = Dense(latent_dim, activation='relu')(item_input)
         
+        # Ajouter plusieurs couches dynamiques en fonction du nombre spécifié
+        for _ in range(num_layers - 1):  # num_layers - 1 car on a déjà une couche
+            user_projection = Dense(latent_dim, activation='relu')(user_projection)
+            item_projection = Dense(latent_dim, activation='relu')(item_projection)
+    
+        # Calculer la similarité cosinus entre les deux projections
+        similarity = Dot(axes=1, normalize=True)([user_projection, item_projection]) * 5
+    
+        model = Model(inputs=[user_input, item_input], outputs=similarity)
+        return model   
+    
+    def train_and_optimize(self, model, Y, user_vectors, item_vectors, params):
+        optimizer = Adam(learning_rate=params['learning_rate'])
+    
+        positives = np.argwhere(Y > 0)  # Trouver les notes observées
+
+        users_pos = positives[:, 0]
+        items_pos = positives[:, 1]
+        rating_pos = Y[users_pos,items_pos]
         
+        user_vectors_observed = user_vectors[users_pos]
+        item_vectors_observed = item_vectors[items_pos]
+
+        # Compilation du modèle
+        model.compile(optimizer=optimizer, loss='mean_squared_error')
+            
+        # Définir les callbacks pour arrêter l'entraînement ou ajuster le learning rate si nécessaire
+        early_stopping = EarlyStopping(monitor='loss', patience=3, restore_best_weights=True)
+        reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.2, patience=2, min_lr=0.0001)
+        
+        # Entraîner le modèle et surveiller l'erreur (RMSE) à chaque époque
+        history = model.fit([user_vectors_observed, item_vectors_observed], rating_pos,
+                            epochs=params['epochs'], batch_size=32, verbose=1,
+                            callbacks=[early_stopping, reduce_lr])
+    
+        # Récupérer l'historique de perte pendant l'entraînement
+        loss_history = history.history['loss']
+        
+        return loss_history[-1]  # Retourne la perte à la dernière époque
+ 
     
     def predict(self, model, user_vectors, item_vectors, batch_size):
         # Créer des matrices d'indices pour chaque utilisateur et chaque item
@@ -139,7 +172,7 @@ class matrix_factorisation:
         for start_u in range(0, num_users, batch_size):
             end_u = min(start_u + batch_size, num_users)
             user_batch = user_vectors[start_u:end_u]
-            #Description : Cette boucle imbriquée permet de traiter les items 
+            #Cette boucle imbriquée permet de traiter les items 
             #par petits groupes, de manière similaire à la boucle des utilisateurs :
             for start_i in range(0, num_items, batch_size):
                 end_i = min(start_i + batch_size, num_items)
@@ -154,7 +187,7 @@ class matrix_factorisation:
                 
                 # Reshape et stocker les prédictions dans la matrice
                 R_hat[start_u:end_u, start_i:end_i] = R_hat_batch.reshape((end_u - start_u, end_i - start_i))
-        
+        R_hat = np.around(2*R_hat)/2
         return R_hat
 
     def score_RMSE(self, k, R):
