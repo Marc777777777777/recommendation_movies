@@ -18,6 +18,7 @@ if __name__ == '__main__':
     # Open Ratings table
     print('Ratings loading...') 
     table = np.load(args.name) ## DO NOT CHANGE THIS LINE
+    data_genre = np.load("namesngenre.npy")  
     print('Ratings Loaded.')
     
 
@@ -37,9 +38,10 @@ if __name__ == '__main__':
     ### DEEP MATRIX FACTORISATION ###
     table = np.nan_to_num(table)
     mf_model = DMF.matrix_factorisation()
-    model = mf_model.train_DMF(table, latent_dim=124, epochs=100, learning_rate=0.001, layers=2)
+    model = mf_model.train_DMF(table, data_genre, genre_embedding_dim=16, latent_dim=124, epochs=30, learning_rate=0.001, num_layers=2)
     user_vectors, item_vectors = mf_model.prepare_data_for_training(table)
-    table = mf_model.predict(model, user_vectors, item_vectors, batch_size=1000)
+    item_genre = mf_model.prepare_genres(data_genre)
+    table = mf_model.predict(model, user_vectors, item_vectors, item_genre, batch_size=1000)
 
     
 
