@@ -6,17 +6,20 @@ class matrix_factorisation:
     """
     An object of this class will implement the training and 
     """
-    def __init__(self, k, m, n):
+    def __init__(self, k, m, n, random_init=False, seed=0):
         """
         The object will have the I matrix and the U matrix.
         The training will use some methods to 
         """
         self.k = k
-        #ratings = np.arange(0.5, 5.5, 0.5)
-        #self.I = np.random.choice(ratings, (m, self.k))
-        #self.U = np.random.choice(ratings, (n, self.k))
-        self.I = np.ones((m, self.k))
-        self.U = np.ones((n, self.k))
+        if random_init:
+            np.random.seed(seed)
+            ratings = np.arange(0.5, 5.5, 0.5)
+            self.I = np.random.choice(ratings, (m, self.k))
+            self.U = np.random.choice(ratings, (n, self.k))
+        else:
+            self.I = np.ones((m, self.k))
+            self.U = np.ones((n, self.k))
 
 
     def train_GD(self, R, tau_U=0.1, tau_I=1e-10, lmbda=0.001, mu=0.001, nb_ite=500, alternate_counter=25):
