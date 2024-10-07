@@ -6,17 +6,21 @@ class matrix_factorisation:
     """
     An object of this class will implement the training and 
     """
-    def __init__(self, k, m, n, random_init=False, seed=0):
+    def __init__(self, k, m, n, random_uniform=False, random_gaussian=False, seed=0):
         """
         The object will have the I matrix and the U matrix.
         The training will use some methods to 
         """
         self.k = k
-        if random_init:
+        if random_uniform:
             np.random.seed(seed)
             ratings = np.arange(0.5, 5.5, 0.5)
             self.I = np.random.choice(ratings, (m, self.k))
             self.U = np.random.choice(ratings, (n, self.k))
+        elif random_gaussian:
+            np.random.seed(seed)
+            self.I = np.random.normal(loc=2.5, scale=1, size=(m, self.k))
+            self.U = np.random.normal(loc=2.5, scale=1, size=(n, self.k))
         else:
             self.I = np.ones((m, self.k))
             self.U = np.ones((n, self.k))
