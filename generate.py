@@ -2,13 +2,13 @@ import numpy as np
 import os
 from tqdm import tqdm, trange
 import argparse
-#import matrix_factorisation as MF
+import matrix_factorisation as MF
 import Deep_Matrix_Factorization as DMF
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate a completed ratings table.')
-    parser.add_argument("--name", type=str, default="ratings_train.npy",
+    parser.add_argument("--name", type=str, default="ratings_eval.npy",
                       help="Name of the npy of the ratings table to complete")
 
     args = parser.parse_args()
