@@ -41,7 +41,7 @@ if __name__ == '__main__':
     model = mf_model.train_DMF(table, data_genre, genre_embedding_dim=16, latent_dim=124, epochs=30, learning_rate=0.001, num_layers=2)
     user_vectors, item_vectors = mf_model.prepare_data_for_training(table)
     item_genre = mf_model.prepare_genres(data_genre)
-    table = mf_model.predict(model, user_vectors, item_vectors, item_genre, batch_size=1000)
+    table = mf_model.predict(model, user_vectors, item_vectors, item_genre, batch_size=100)
 
     
 
