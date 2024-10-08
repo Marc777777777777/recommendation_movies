@@ -2,13 +2,13 @@ import numpy as np
 import os
 from tqdm import tqdm, trange
 import argparse
-import matrix_factorisation as MF
+#import matrix_factorisation as MF
 import Deep_Matrix_Factorization as DMF
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate a completed ratings table.')
-    parser.add_argument("--name", type=str, default="ratings_eval.npy",
+    parser.add_argument("--name", type=str, default="ratings_train.npy",
                       help="Name of the npy of the ratings table to complete")
 
     args = parser.parse_args()
@@ -38,10 +38,18 @@ if __name__ == '__main__':
     ### DEEP MATRIX FACTORISATION ###
     table = np.nan_to_num(table)
     mf_model = DMF.matrix_factorisation()
-    model = mf_model.train_DMF(table, data_genre, genre_embedding_dim=16, latent_dim=124, epochs=30, learning_rate=0.001, num_layers=2)
+    genres_padded, num_genres, max_genre_length = mf_model.prepare_genres(data_genre)
+
+    model = mf_model.train_DMF(table, data_genre, genre_embedding_dim=max_genre_length, latent_dim=64, epochs=30, learning_rate=0.001, num_layers=2)    
     user_vectors, item_vectors = mf_model.prepare_data_for_training(table)
-    item_genre = mf_model.prepare_genres(data_genre)
-    table = mf_model.predict(model, user_vectors, item_vectors, item_genre, batch_size=100)
+    item_vectors_with_genre = []
+    for i in range(len(item_vectors)):
+        combined_vector = np.concatenate((item_vectors[i], genres_padded[i]))  # Combiner les notes et les genres
+        item_vectors_with_genre.append(combined_vector)
+        
+    item_vectors_with_genre = np.array(item_vectors_with_genre)
+    
+    table = mf_model.predict(model, user_vectors, item_vectors_with_genre, batch_size=100)
 
     
 
